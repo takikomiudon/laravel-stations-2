@@ -25,7 +25,7 @@
     <div>
       <label for="is_showing">公開中かどうか</label>
       <input type="hidden" name="is_showing" value="0">
-      <input type="checkbox" id="is_showing" name="is_showing" value="{{ $movie->is_showing }}">
+      <input type="checkbox" id="is_showing" name="is_showing" value="1" {{ $movie->is_showing ? 'checked' : '' }}>
     </div>
     <div>
       <label for="description">概要</label>

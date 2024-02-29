@@ -8,6 +8,24 @@ use Illuminate\Http\Request;
 
 class MovieController extends Controller
 {
+  public function search()
+  {
+    $keyword = request('keyword');
+    $is_showing = request('is_showing');
+    $movies = Movie::where(function ($query) use ($keyword) {
+      if ($keyword) {
+        $query->where('title', 'like', '%' . $keyword . '%')
+          ->orWhere('description', 'like', '%' . $keyword . '%');
+      }
+    });
+    if ($is_showing === null) {
+      $movies = $movies->paginate(20);
+    } else {
+      $movies = $movies->where('is_showing', $is_showing)->paginate(20);
+    }
+    return view('movies', ['movies' => $movies]);
+  }
+
   public function movies()
   {
     $movies = Movie::all();

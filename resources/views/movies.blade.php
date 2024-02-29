@@ -12,6 +12,13 @@
       {{ session('message') }}
     </div>
   @endif
+  <form action="/movies" method="get">
+    <input type="text" name="keyword" placeholder="検索">
+    <input type="radio" name="is_showing" value="" checked>すべて
+    <input type="radio" name="is_showing" value="0">公開予定
+    <input type="radio" name="is_showing" value="1">公開中
+    <input type="submit" value="検索">
+  </form>
   <table>
     <tr>
       <th>id</th>
