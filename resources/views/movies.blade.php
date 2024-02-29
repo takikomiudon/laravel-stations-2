@@ -7,6 +7,11 @@
   <title>Movie</title>
 </head>
 <body>
+  @if (session('message'))
+    <div class='alert alert-success'>
+      {{ session('message') }}
+    </div>
+  @endif
   <table>
     <tr>
       <th>id</th>
@@ -16,6 +21,7 @@
       <th>上映中かどうか</th>
       <th>概要</th>
       <th>編集</th>
+      <th>削除</th>
     </tr>
     @foreach ($movies as $movie)
       <tr>
@@ -29,6 +35,14 @@
           <button onclick="location.href='/admin/movies/{{ $movie->id }}/edit'">
             編集
           </button>
+        </td>
+        <td>
+          <form action="/admin/movies/{{ $movie->id }}/destroy" method="post">
+            @csrf
+            @method('DELETE')
+            <input type="submit" value="削除" 
+              onclick="return confirm('削除しますか？');">
+          </form>
         </td>
       </tr>
     @endforeach

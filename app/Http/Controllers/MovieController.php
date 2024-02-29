@@ -78,4 +78,12 @@ class MovieController extends Controller
 
     return redirect('/admin/movies');
   }
+
+  public function deleteMovie($id)
+  {
+    $movie = Movie::findOrfail($id);
+    $movie->delete();
+    return redirect('/admin/movies')
+      ->with('message', '削除しました');
+  }
 }
