@@ -45,4 +45,37 @@ class MovieController extends Controller
 
     return redirect('/admin/movies');
   }
+
+  public function editMovie($id)
+  {
+    $movie = Movie::find($id);
+    return view('editMovie', ['movie' => $movie]);
+  }
+
+  public function updateMovie(Request $request, $id)
+  {
+    $validator = Validator::make($request->all(), [
+      'title' => 'required|unique:movies,title,' . $id,
+      'image_url' => 'required|url',
+      'published_year' => 'required|integer',
+      'is_showing' => 'required|boolean',
+      'description' => 'required',
+    ]);
+
+    if ($validator->fails()) {
+      return redirect('/admin/movies/' . $id . '/edit')
+        ->withErrors($validator)
+        ->withInput();
+    }
+
+    $movie = Movie::find($id);
+    $movie->title = request('title');
+    $movie->image_url = request('image_url');
+    $movie->published_year = request('published_year');
+    $movie->is_showing = request('is_showing') ? true : false;
+    $movie->description = request('description');
+    $movie->save();
+
+    return redirect('/admin/movies');
+  }
 }
