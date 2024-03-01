@@ -27,6 +27,10 @@
       <input type="checkbox" id="is_showing" name="is_showing" value="1">
     </div>
     <div>
+      <label for="genre">ジャンル</label>
+      <input type="text" id="genre" name="genre" required>
+    </div>
+    <div>
       <label for="description">概要</label>
       <textarea id="description" name="description" required></textarea>
     </div>

@@ -28,6 +28,10 @@
       <input type="checkbox" id="is_showing" name="is_showing" value="1" {{ $movie->is_showing ? 'checked' : '' }}>
     </div>
     <div>
+      <label for="genre">ジャンル</label>
+      <input type="text" id="genre" name="genre" value="{{ $movie->genre->name }}">
+    </div>
+    <div>
       <label for="description">概要</label>
       <textarea id="description" name="description">{{ $movie->description }}</textarea>
     </div>

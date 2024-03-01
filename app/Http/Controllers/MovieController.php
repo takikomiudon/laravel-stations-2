@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Genre;
 use App\Models\Movie;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class MovieController extends Controller
 {
@@ -28,7 +30,8 @@ class MovieController extends Controller
 
   public function movies()
   {
-    $movies = Movie::all();
+    $movies = Movie::with('genre')->paginate(20);
+
     return view('movies', ['movies' => $movies]);
   }
 
@@ -45,6 +48,7 @@ class MovieController extends Controller
       'published_year' => 'required|integer',
       'is_showing' => 'required|boolean',
       'description' => 'required',
+      'genre' => 'required|string',
     ]);
 
     if ($validator->fails()) {
@@ -53,20 +57,30 @@ class MovieController extends Controller
         ->withInput();
     }
 
-    $movie = new Movie();
-    $movie->title = request('title');
-    $movie->image_url = request('image_url');
-    $movie->published_year = request('published_year');
-    $movie->is_showing = request('is_showing') ? true : false;
-    $movie->description = request('description');
-    $movie->save();
+    DB::beginTransaction();
+    try {
+      $genre = Genre::firstOrCreate(['name' => request('genre')]);
 
+      $movie = new Movie();
+      $movie->title = request('title');
+      $movie->image_url = request('image_url');
+      $movie->published_year = request('published_year');
+      $movie->is_showing = request('is_showing') ? true : false;
+      $movie->description = request('description');
+      $movie->genre_id = $genre->id;
+      $movie->save();
+      
+      DB::commit();
+    } catch (\Exception $e) {
+      DB::rollBack();
+      return response()->json(['message' => $e], 500);
+    }
     return redirect('/admin/movies');
   }
 
   public function editMovie($id)
   {
-    $movie = Movie::find($id);
+    $movie = Movie::with('genre')->find($id);
     return view('editMovie', ['movie' => $movie]);
   }
 
@@ -78,6 +92,7 @@ class MovieController extends Controller
       'published_year' => 'required|integer',
       'is_showing' => 'required|boolean',
       'description' => 'required',
+      'genre' => 'required|string',
     ]);
 
     if ($validator->fails()) {
@@ -86,13 +101,25 @@ class MovieController extends Controller
         ->withInput();
     }
 
-    $movie = Movie::find($id);
-    $movie->title = request('title');
-    $movie->image_url = request('image_url');
-    $movie->published_year = request('published_year');
-    $movie->is_showing = request('is_showing') ? true : false;
-    $movie->description = request('description');
-    $movie->save();
+    DB::beginTransaction();
+    try {
+      $movie = Movie::find($id);
+      $movie->title = request('title');
+      $movie->image_url = request('image_url');
+      $movie->published_year = request('published_year');
+      $movie->is_showing = request('is_showing') ? true : false;
+      $movie->description = request('description');
+      $movie->save();
+
+      $genre = Genre::firstOrCreate(['name' => request('genre')]);
+      $movie->genre_id = $genre->id;
+      $movie->save();
+
+      DB::commit();
+    } catch (\Exception $e) {
+      DB::rollBack();
+      return response()->json(['message' => $e], 500);
+    }
 
     return redirect('/admin/movies');
   }
