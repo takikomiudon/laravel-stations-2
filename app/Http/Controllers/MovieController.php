@@ -6,6 +6,7 @@ use App\Models\Genre;
 use App\Models\Movie;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class MovieController extends Controller
@@ -130,5 +131,16 @@ class MovieController extends Controller
     $movie->delete();
     return redirect('/admin/movies')
       ->with('message', '削除しました');
+  }
+
+  public function schedule($id)
+  {
+    $schedules = Movie::with('schedules', 'genre')->find($id);
+    $schedules->schedules->each(function ($schedule) {
+      $schedule->start_time = Carbon::parse($schedule->start_time)->format('H:i');
+      $schedule->end_time = Carbon::parse($schedule->end_time)->format('H:i');
+    });
+    $schedules->schedules = $schedules->schedules->sortBy('start_time');
+    return view('schedule', ['schedules' => $schedules]);
   }
 }
